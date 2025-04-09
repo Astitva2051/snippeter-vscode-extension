@@ -1,0 +1,110 @@
+{
+  "name": "snippet-er",
+  "displayName": "Snippet-er",
+  "description": "Manage and suggest code snippets across your projects",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "categories": [
+    "Snippets",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Snippet-er",
+      "properties": {
+        "snippet-er.token": {
+          "type": "string",
+          "default": "",
+          "description": "Authentication token for Snippet Manager."
+        },
+        "snippet-er.autoSuggest": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic snippet suggestions while coding."
+        },
+        "snippet-er.snippetLanguages": {
+          "type": "array",
+          "default": [
+            "javascript",
+            "typescript",
+            "python"
+          ],
+          "description": "Programming languages for which snippets are suggested."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "extension.login",
+        "title": "Snippet-er: Login"
+      },
+      {
+        "command": "extension.logout",
+        "title": "Snippet-er: Logout"
+      },
+      {
+        "command": "extension.saveSnippet",
+        "title": "Snippet-er: Create New Snippet"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "extension.saveSnippet",
+          "group": "navigation",
+          "when": "editorHasSelection"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "build": "node esbuild.config.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.97.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.21.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "axios": "^1.8.1",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "publisher": "YourPublisherName",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/snippet-er"
+  },
+  "keywords": [
+    "snippets",
+    "code management",
+    "productivity"
+  ],
+  "license": "MIT"
+}
