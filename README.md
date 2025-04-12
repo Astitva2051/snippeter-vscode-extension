@@ -1,71 +1,140 @@
-# snippet-er README
+# Snippet-er: Manage and Suggest Code Snippets
 
-This is the README for your extension "snippet-er". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Snippet-er is a Visual Studio Code extension designed to help developers manage, create, and suggest code snippets seamlessly across their projects. With features like authentication, snippet creation, and intelligent suggestions, Snippet-er enhances productivity and code reuse.
 
 ---
 
-## Following extension guidelines
+## Features
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+- **Authentication**: Secure login and logout functionality to manage your snippets.
+- **Snippet Creation**: Save selected code snippets directly from the editor.
+- **Snippet Suggestions**: Get intelligent snippet suggestions while coding, based on context and language.
+- **Language Support**: Works with multiple programming languages, including JavaScript, TypeScript, Python, Java, and more.
+- **Snippet Metadata**: Add tags, time complexity, and space complexity to snippets for better organization.
+- **Snippet Cache**: Caches snippets locally to reduce network requests and improve performance.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+---
 
-## Working with Markdown
+## Requirements
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+- Visual Studio Code version `^1.97.0` or higher.
+- Node.js version `18.x` or higher.
+- An account on the Snippet-er platform for authentication.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+---
 
-## For more information
+## Installation
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+1. Open Visual Studio Code.
 
-**Enjoy!**
+2. Go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window or pressing `Ctrl+Shift+X`.
+
+3. Search for `Snippet-er` in the Extensions Marketplace.
+
+4. Click `Install` to add the extension to your editor.
+
+---
+
+## Usage
+
+### 1. **Login**
+
+- Open the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) or click the Snippet-er icon in the status bar.
+- Search for `Snippet-er: Login` and select it.
+- Enter your email and password to log in.
+- If the credentials are invalid, you will be prompted to register.
+
+### 2. **Register**
+
+- If you don't have an account, you can register by selecting the "Register" option when prompted.
+- Alternatively, click the Snippet-er icon in the status bar and select "Register."
+- This will redirect you to the registration page in your browser.
+
+### 3. **Create a Snippet**
+
+- Highlight the code you want to save in the editor.
+- Right-click and select `Snippet-er: Create New Snippet` from the context menu, use the command palette, or click the Snippet-er icon in the status bar to run the same command.
+- Provide the following details:
+  - **Title**: A name for your snippet.
+  - **Tags**: (Optional) Comma-separated tags for categorization.
+- The snippet will be saved to your account and cached locally.
+
+### 4. **Logout**
+
+- Open the command palette, search for `Snippet-er: Logout`, or click the Snippet-er icon in the status bar and select "Logout."
+- This will clear your authentication token and log you out.
+
+### 5. **Snippet Suggestions**
+
+- While coding, start typing in the editor.
+- Snippet-er will suggest relevant snippets based on the language and context.
+- Select a suggestion to insert the snippet into your code.
+
+---
+
+## Supported Languages
+
+Snippet-er supports the following programming languages:
+
+- JavaScript
+- TypeScript
+- Python
+- Java
+- C
+- C++
+- C#
+- Go
+- Rust
+- Ruby
+- PHP
+- Swift
+- Kotlin
+- SQL
+- HTML
+- CSS
+
+---
+
+## Extension Settings
+
+Snippet-er provides the following configuration options:
+
+- **`snippet-er.token`**: Authentication token for managing snippets.
+- **`snippet-er.autoSuggest`**: Enable or disable automatic snippet suggestions.
+- **`snippet-er.snippetLanguages`**: List of programming languages for which snippets are suggested.
+
+---
+
+## Known Issues
+
+- Ensure your internet connection is stable for authentication and snippet fetching.
+
+---
+
+## Release Notes
+
+### 0.1.0
+
+- Initial release with login, logout, snippet creation, and suggestion features.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Submit a pull request with a detailed description of your changes.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact
+
+For support or feedback, please reach out to the repository owner at [GitHub](https://github.com/Astitva2051/snippeter-vscode-extension).
