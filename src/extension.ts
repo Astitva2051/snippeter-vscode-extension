@@ -3,6 +3,7 @@ import { loginUser, logoutUser } from "./utils/auth";
 import { fetchSnippets, createSnippet } from "./snippets";
 import { throttle } from "./utils/performance";
 import { getStoredToken } from "./utils/storage";
+import { FRONTEND_REGISTER_URL } from "./utils/config";
 
 // Define supported languages as an enum
 enum SupportedLanguage {
@@ -252,6 +253,30 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
+  // Function to handle status bar click when logged out
+  async function handleLoggedOutClick() {
+    const action = await vscode.window.showQuickPick(["Login", "Register"], {
+      placeHolder: "Choose an action",
+    });
+
+    if (action === "Login") {
+      vscode.commands.executeCommand("extension.login");
+    } else if (action === "Register") {
+      vscode.window
+        .showInformationMessage(
+          "You will be redirected to the registration page in your browser.",
+          "Proceed"
+        )
+        .then(async (selection) => {
+          if (selection === "Proceed") {
+            await vscode.env.openExternal(
+              vscode.Uri.parse(FRONTEND_REGISTER_URL)
+            );
+          }
+        });
+    }
+  }
+
   // Function to update the status bar item's command based on login status
   async function updateStatusBarCommand() {
     const token = await getStoredToken();
@@ -260,8 +285,9 @@ export function activate(context: vscode.ExtensionContext) {
       snippetStatusBarItem.tooltip =
         "Choose an action: Create Snippet or Logout";
     } else {
-      snippetStatusBarItem.command = "extension.login"; // Command to log in
-      snippetStatusBarItem.tooltip = "Log in to manage your snippets";
+      snippetStatusBarItem.command = "extension.handleLoggedOutClick"; // Command for logged-out actions
+      snippetStatusBarItem.tooltip =
+        "Log in or register to manage your snippets";
     }
     snippetStatusBarItem.show();
   }
@@ -271,6 +297,14 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "extension.handleLoggedInClick",
       handleLoggedInClick
+    )
+  );
+
+  // Register the custom command for logged-out actions
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "extension.handleLoggedOutClick",
+      handleLoggedOutClick
     )
   );
 

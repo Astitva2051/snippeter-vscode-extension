@@ -10488,7 +10488,7 @@ var require_ms = __commonJS({
 // node_modules/debug/src/common.js
 var require_common = __commonJS({
   "node_modules/debug/src/common.js"(exports2, module2) {
-    function setup(env3) {
+    function setup(env4) {
       createDebug.debug = createDebug;
       createDebug.default = createDebug;
       createDebug.coerce = coerce;
@@ -10497,8 +10497,8 @@ var require_common = __commonJS({
       createDebug.enabled = enabled;
       createDebug.humanize = require_ms();
       createDebug.destroy = destroy;
-      Object.keys(env3).forEach((key) => {
-        createDebug[key] = env3[key];
+      Object.keys(env4).forEach((key) => {
+        createDebug[key] = env4[key];
       });
       createDebug.names = [];
       createDebug.skips = [];
@@ -15411,14 +15411,33 @@ function activate(context) {
       vscode5.commands.executeCommand("extension.logout");
     }
   }
+  async function handleLoggedOutClick() {
+    const action = await vscode5.window.showQuickPick(["Login", "Register"], {
+      placeHolder: "Choose an action"
+    });
+    if (action === "Login") {
+      vscode5.commands.executeCommand("extension.login");
+    } else if (action === "Register") {
+      vscode5.window.showInformationMessage(
+        "You will be redirected to the registration page in your browser.",
+        "Proceed"
+      ).then(async (selection) => {
+        if (selection === "Proceed") {
+          await vscode5.env.openExternal(
+            vscode5.Uri.parse(FRONTEND_REGISTER_URL)
+          );
+        }
+      });
+    }
+  }
   async function updateStatusBarCommand() {
     const token = await getStoredToken();
     if (token) {
       snippetStatusBarItem.command = "extension.handleLoggedInClick";
       snippetStatusBarItem.tooltip = "Choose an action: Create Snippet or Logout";
     } else {
-      snippetStatusBarItem.command = "extension.login";
-      snippetStatusBarItem.tooltip = "Log in to manage your snippets";
+      snippetStatusBarItem.command = "extension.handleLoggedOutClick";
+      snippetStatusBarItem.tooltip = "Log in or register to manage your snippets";
     }
     snippetStatusBarItem.show();
   }
@@ -15426,6 +15445,12 @@ function activate(context) {
     vscode5.commands.registerCommand(
       "extension.handleLoggedInClick",
       handleLoggedInClick
+    )
+  );
+  context.subscriptions.push(
+    vscode5.commands.registerCommand(
+      "extension.handleLoggedOutClick",
+      handleLoggedOutClick
     )
   );
   updateStatusBarCommand();
