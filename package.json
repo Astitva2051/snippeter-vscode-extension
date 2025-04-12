@@ -76,7 +76,8 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-    "build": "node esbuild.config.js"
+    "build": "node esbuild.config.js",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -89,22 +90,25 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.21.0",
     "npm-run-all": "^4.1.5",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vsce": "^2.15.0"
   },
   "dependencies": {
     "axios": "^1.8.1",
     "jsonwebtoken": "^9.0.2"
   },
-  "publisher": "YourPublisherName",
+  "publisher": "Astitva Jain",
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/snippet-er"
+    "url": "https://github.com/Astitva2051/snippeter-vscode-extension"
   },
   "keywords": [
     "snippets",
     "code management",
-    "productivity"
+    "productivity",
+    "snippeter",
+    "snippet-er"
   ],
   "license": "MIT"
 }
