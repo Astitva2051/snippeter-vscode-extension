@@ -123,9 +123,15 @@ async function saveSnippet() {
       );
 
       if (loginResponse === "Login") {
-        await loginUser();
-        // Return early, user can try again after login
-        return;
+        try {
+          await loginUser();
+          updateStatusBarCommand(); // Update the status bar after login
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            "Login failed. Please check your credentials and try again."
+          );
+        }
+        return; // Return early, user can try again after login
       } else {
         return; // User cancelled
       }
@@ -207,40 +213,85 @@ async function saveSnippet() {
 }
 
 /**
+ * Function to update the status bar item's command based on login status
+ */
+async function updateStatusBarCommand() {
+  const token = await getStoredToken();
+  if (token) {
+    snippetStatusBarItem.command = "extension.handleLoggedInClick"; // Custom command for logged-in actions
+    snippetStatusBarItem.tooltip = "Choose an action: Create Snippet or Logout";
+  } else {
+    snippetStatusBarItem.command = "extension.handleLoggedOutClick"; // Command for logged-out actions
+    snippetStatusBarItem.tooltip = "Log in or register to manage your snippets";
+  }
+  snippetStatusBarItem.show();
+}
+
+// Declare snippetStatusBarItem at the module level
+let snippetStatusBarItem: vscode.StatusBarItem;
+
+/**
  * Activates the VS Code extension
  *
  * @param context Extension context for registering commands
  */
 export function activate(context: vscode.ExtensionContext) {
+  // Periodically refresh snippet cache every 10 minutes
+  setInterval(() => {
+    supportedLanguages.forEach(async (language) => {
+      await refreshSnippetCache(language);
+    });
+  }, 30 * 60 * 1000); // Refresh every 10 minutes
+
   // Register authentication commands
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.login", async () => {
       await loginUser();
       updateStatusBarCommand(); // Update the status bar after login
+
+      // Refresh snippet cache for all supported languages after login
+      supportedLanguages.forEach(async (language) => {
+        await refreshSnippetCache(language);
+      });
     }),
     vscode.commands.registerCommand("extension.logout", async () => {
       await logoutUser();
       updateStatusBarCommand(); // Update the status bar after logout
+
+      // Clear the snippet cache on logout
+      Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+    }),
+    vscode.commands.registerCommand("extension.saveSnippet", async () => {
+      await saveSnippet(); // Register the saveSnippet command
     })
   );
 
-  // Add snippet creation command using register instead of registerTextEditorCommand
+  // Register the command to refresh snippet cache
+  // This command can be triggered from the status bar or command palette
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.saveSnippet", saveSnippet)
+    vscode.commands.registerCommand("extension.refreshCache", async () => {
+      supportedLanguages.forEach(async (language) => {
+        await refreshSnippetCache(language);
+      });
+      vscode.window.showInformationMessage("Snippet cache refreshed!");
+    })
   );
 
   // Create a status bar item for Snippet-er
-  const snippetStatusBarItem = vscode.window.createStatusBarItem(
+  snippetStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right, // Align to the right
     100
   );
   snippetStatusBarItem.text = "$(book) Snippet-er";
   snippetStatusBarItem.tooltip = "Manage your code snippets";
 
+  // Add the status bar item to the subscriptions
+  context.subscriptions.push(snippetStatusBarItem);
+
   // Function to handle status bar click when logged in
   async function handleLoggedInClick() {
     const action = await vscode.window.showQuickPick(
-      ["Create Snippet", "Logout"],
+      ["Create Snippet", "Refresh Snippets", "Logout"],
       {
         placeHolder: "Choose an action",
       }
@@ -248,6 +299,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (action === "Create Snippet") {
       vscode.commands.executeCommand("extension.saveSnippet");
+    } else if (action === "Refresh Snippets") {
+      vscode.commands.executeCommand("extension.refreshCache");
     } else if (action === "Logout") {
       vscode.commands.executeCommand("extension.logout");
     }
@@ -277,21 +330,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
-  // Function to update the status bar item's command based on login status
-  async function updateStatusBarCommand() {
-    const token = await getStoredToken();
-    if (token) {
-      snippetStatusBarItem.command = "extension.handleLoggedInClick"; // Custom command for logged-in actions
-      snippetStatusBarItem.tooltip =
-        "Choose an action: Create Snippet or Logout";
-    } else {
-      snippetStatusBarItem.command = "extension.handleLoggedOutClick"; // Command for logged-out actions
-      snippetStatusBarItem.tooltip =
-        "Log in or register to manage your snippets";
-    }
-    snippetStatusBarItem.show();
-  }
-
   // Register the custom command for logged-in actions
   context.subscriptions.push(
     vscode.commands.registerCommand(
@@ -313,6 +351,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Add the status bar item to the subscriptions
   context.subscriptions.push(snippetStatusBarItem);
+
+  // Refresh snippet cache for all supported languages on activation
+  supportedLanguages.forEach(async (language) => {
+    await refreshSnippetCache(language);
+  });
 
   // Register completion providers for each supported language
   supportedLanguages.forEach((language) => {

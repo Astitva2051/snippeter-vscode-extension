@@ -12,6 +12,8 @@ Snippet-er is a Visual Studio Code extension designed to help developers manage,
 - **Language Support**: Works with multiple programming languages, including JavaScript, TypeScript, Python, Java, and more.
 - **Snippet Metadata**: Add tags, time complexity, and space complexity to snippets for better organization.
 - **Snippet Cache**: Caches snippets locally to reduce network requests and improve performance.
+- **Periodic Refresh**: Automatically refresh snippets at regular intervals to ensure you have the latest updates.
+- **Manual Refresh**: Refresh snippets manually using a command or the refresh button in the status bar.
 
 ---
 
@@ -59,12 +61,19 @@ Snippet-er is a Visual Studio Code extension designed to help developers manage,
   - **Tags**: (Optional) Comma-separated tags for categorization.
 - The snippet will be saved to your account and cached locally.
 
-### 4. **Logout**
+### 4. **Refresh Snippets**
+
+- **Periodic Refresh**: Snippets are automatically refreshed at regular intervals. This feature ensures you always have the latest snippets without manual intervention.
+- **Manual Refresh**:
+  - Open the command palette, search for `Snippet-er: Refresh Snippets`, and select it.
+  - Alternatively, click the refresh button in the Snippet-er status bar icon to refresh snippets instantly.
+
+### 5. **Logout**
 
 - Open the command palette, search for `Snippet-er: Logout`, or click the Snippet-er icon in the status bar and select "Logout."
 - This will clear your authentication token and log you out.
 
-### 5. **Snippet Suggestions**
+### 6. **Snippet Suggestions**
 
 - While coding, start typing in the editor.
 - Snippet-er will suggest relevant snippets based on the language and context.
@@ -102,6 +111,7 @@ Snippet-er provides the following configuration options:
 - **`snippet-er.token`**: Authentication token for managing snippets.
 - **`snippet-er.autoSuggest`**: Enable or disable automatic snippet suggestions.
 - **`snippet-er.snippetLanguages`**: List of programming languages for which snippets are suggested.
+- **`snippet-er.refreshInterval`**: Set the interval (in minutes) for periodic snippet refresh. Default is 15 minutes.
 
 ---
 
@@ -112,6 +122,12 @@ Snippet-er provides the following configuration options:
 ---
 
 ## Release Notes
+
+### 0.2.0
+
+- Added periodic refresh for snippets.
+- Added manual refresh command.
+- Added refresh button in the status bar icon.
 
 ### 0.1.0
 

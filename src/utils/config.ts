@@ -2,7 +2,7 @@
  * Base URL for API requests
  * Configurable for different environments
  */
-export const API_BASE_URL = "https://snippeter-backend.onrender.com";
+export const API_BASE_URL = "https://snippeter-backend.onrender.com/api";
 
 /**
  * Frontend login page URL

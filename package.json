@@ -51,6 +51,14 @@
       {
         "command": "extension.saveSnippet",
         "title": "Snippet-er: Create New Snippet"
+      },
+      {
+        "command": "extension.suggestSnippets",
+        "title": "Snippet-er: Suggest Snippets"
+      },
+      {
+        "command": "extension.refreshCache",
+        "title": "Snippet-er: Refresh Snippets"
       }
     ],
     "menus": {
