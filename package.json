@@ -97,7 +97,7 @@
     "axios": "^1.8.1",
     "jsonwebtoken": "^9.0.2"
   },
-  "publisher": "Astitva Jain",
+  "publisher": "Astitva-Jain",
   "icon": "icon.png",
   "repository": {
     "type": "git",

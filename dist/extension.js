@@ -14979,8 +14979,8 @@ var {
 } = axios_default;
 
 // src/utils/config.ts
-var API_BASE_URL = "http://localhost:5000/api";
-var FRONTEND_REGISTER_URL = "http://localhost:3000/register";
+var API_BASE_URL = "https://snippeter-backend.onrender.com";
+var FRONTEND_REGISTER_URL = "https://snippet-er.netlify.app/register";
 
 // src/utils/storage.ts
 var vscode = __toESM(require("vscode"));
