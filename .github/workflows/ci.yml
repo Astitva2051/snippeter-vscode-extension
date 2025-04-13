@@ -50,7 +50,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Bump version
+        run: |
+          npm version patch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin HEAD
+
+      - name: Package extension
+        run: npx vsce package
+
       - name: Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npm run publish
+        run: npx vsce publish

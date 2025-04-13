@@ -15399,10 +15399,18 @@ async function updateStatusBarCommand() {
 var snippetStatusBarItem;
 function activate(context) {
   setInterval(() => {
+    const refreshProgress = vscode5.window.createStatusBarItem(
+      vscode5.StatusBarAlignment.Right,
+      100
+    );
+    refreshProgress.text = "$(sync~spin) Refreshing Snippets...";
+    refreshProgress.show();
     supportedLanguages.forEach(async (language) => {
       await refreshSnippetCache(language);
     });
-  }, 10 * 60 * 1e3);
+    refreshProgress.hide();
+    console.log("Snippet cache refreshed for all languages");
+  }, 15 * 60 * 1e3);
   context.subscriptions.push(
     vscode5.commands.registerCommand("extension.login", async () => {
       await loginUser();

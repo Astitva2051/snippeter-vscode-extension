@@ -2,7 +2,7 @@
   "name": "snippet-er",
   "displayName": "Snippet-er",
   "description": "Manage and suggest code snippets across your projects",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.97.0"
   },

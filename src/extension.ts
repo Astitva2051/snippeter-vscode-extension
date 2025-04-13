@@ -31,6 +31,34 @@ const supportedLanguages = Object.values(SupportedLanguage);
 // Cache to store snippets and reduce network requests
 const snippetCache: Record<string, any[]> = {};
 
+// Declare a common progress indicator at the module level
+let commonProgressIndicator: vscode.StatusBarItem;
+
+/**
+ * Updates the common progress indicator with a specific message
+ *
+ * @param message The message to display in the status bar
+ */
+function showProgressIndicator(message: string) {
+  if (!commonProgressIndicator) {
+    commonProgressIndicator = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      100
+    );
+  }
+  commonProgressIndicator.text = message;
+  commonProgressIndicator.show();
+}
+
+/**
+ * Hides the common progress indicator
+ */
+function hideProgressIndicator() {
+  if (commonProgressIndicator) {
+    commonProgressIndicator.hide();
+  }
+}
+
 /**
  * Refreshes the snippet cache for a specific language
  *
@@ -38,17 +66,22 @@ const snippetCache: Record<string, any[]> = {};
  */
 async function refreshSnippetCache(language: string): Promise<void> {
   try {
+    showProgressIndicator(
+      `$(sync~spin) Refreshing Snippets for ${language}...`
+    );
     // Fetch fresh snippets from the server
     const freshSnippets = await fetchSnippets(language);
 
     // Update the cache with fresh data
     snippetCache[language] = freshSnippets;
 
-    console.log(
-      `Refreshed snippet cache for ${language}: ${freshSnippets.length} snippets`
-    );
+    // console.log(
+    //   `Refreshed snippet cache for ${language}: ${freshSnippets.length} snippets`
+    // );
   } catch (error) {
     console.error(`Failed to refresh snippet cache: ${error}`);
+  } finally {
+    hideProgressIndicator();
   }
 }
 
@@ -197,11 +230,11 @@ async function saveSnippet() {
     });
 
     if (result) {
-      console.log("Snippet saved successfully:", result);
+      // console.log("Snippet saved successfully:", result);
       // Refresh the snippet cache for this language to include the new snippet
       await refreshSnippetCache(language);
 
-      console.log("Snippet cache refreshed for language:", language);
+      // console.log("Snippet cache refreshed for language:", language);
 
       vscode.window.showInformationMessage(
         `Snippet '${title}' saved successfully!`
@@ -219,7 +252,8 @@ async function updateStatusBarCommand() {
   const token = await getStoredToken();
   if (token) {
     snippetStatusBarItem.command = "extension.handleLoggedInClick"; // Custom command for logged-in actions
-    snippetStatusBarItem.tooltip = "Choose an action: Create Snippet or Logout";
+    snippetStatusBarItem.tooltip =
+      "Choose an action: Create, Refresh or Logout";
   } else {
     snippetStatusBarItem.command = "extension.handleLoggedOutClick"; // Command for logged-out actions
     snippetStatusBarItem.tooltip = "Log in or register to manage your snippets";
@@ -236,30 +270,47 @@ let snippetStatusBarItem: vscode.StatusBarItem;
  * @param context Extension context for registering commands
  */
 export function activate(context: vscode.ExtensionContext) {
-  // Periodically refresh snippet cache every 10 minutes
-  setInterval(() => {
-    supportedLanguages.forEach(async (language) => {
+  // Periodically refresh snippet cache every 15 minutes
+  setInterval(async () => {
+    showProgressIndicator(
+      "$(sync~spin) Refreshing Snippets for all languages..."
+    );
+    for (const language of supportedLanguages) {
       await refreshSnippetCache(language);
-    });
-  }, 30 * 60 * 1000); // Refresh every 10 minutes
+    }
+    // console.log("Snippet cache refreshed for all languages");
+    hideProgressIndicator();
+  }, 15 * 60 * 1000); // Refresh every 15 minutes
 
   // Register authentication commands
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.login", async () => {
-      await loginUser();
-      updateStatusBarCommand(); // Update the status bar after login
+      showProgressIndicator("$(sync~spin) Logging in...");
+      try {
+        await loginUser();
+        updateStatusBarCommand(); // Update the status bar after login
 
-      // Refresh snippet cache for all supported languages after login
-      supportedLanguages.forEach(async (language) => {
-        await refreshSnippetCache(language);
-      });
+        // Refresh snippet cache for all supported languages after login
+        for (const language of supportedLanguages) {
+          await refreshSnippetCache(language);
+        }
+      } catch (error) {
+        vscode.window.showErrorMessage("Login failed. Please try again.");
+      } finally {
+        hideProgressIndicator();
+      }
     }),
     vscode.commands.registerCommand("extension.logout", async () => {
-      await logoutUser();
-      updateStatusBarCommand(); // Update the status bar after logout
+      showProgressIndicator("$(sync~spin) Logging out...");
+      try {
+        await logoutUser();
+        updateStatusBarCommand(); // Update the status bar after logout
 
-      // Clear the snippet cache on logout
-      Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+        // Clear the snippet cache on logout
+        Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+      } finally {
+        hideProgressIndicator();
+      }
     }),
     vscode.commands.registerCommand("extension.saveSnippet", async () => {
       await saveSnippet(); // Register the saveSnippet command
@@ -270,10 +321,12 @@ export function activate(context: vscode.ExtensionContext) {
   // This command can be triggered from the status bar or command palette
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.refreshCache", async () => {
-      supportedLanguages.forEach(async (language) => {
+      showProgressIndicator("$(sync~spin) Refreshing Snippets...");
+      for (const language of supportedLanguages) {
         await refreshSnippetCache(language);
-      });
+      }
       vscode.window.showInformationMessage("Snippet cache refreshed!");
+      hideProgressIndicator();
     })
   );
 
@@ -438,4 +491,5 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
   // Clear snippet cache
   Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+  hideProgressIndicator(); // Ensure progress indicator is hidden on deactivation
 }
