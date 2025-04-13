@@ -66,9 +66,6 @@ function hideProgressIndicator() {
  */
 async function refreshSnippetCache(language: string): Promise<void> {
   try {
-    showProgressIndicator(
-      `$(sync~spin) Refreshing Snippets for ${language}...`
-    );
     // Fetch fresh snippets from the server
     const freshSnippets = await fetchSnippets(language);
 
@@ -80,8 +77,6 @@ async function refreshSnippetCache(language: string): Promise<void> {
     // );
   } catch (error) {
     console.error(`Failed to refresh snippet cache: ${error}`);
-  } finally {
-    hideProgressIndicator();
   }
 }
 
@@ -232,7 +227,10 @@ async function saveSnippet() {
     if (result) {
       // console.log("Snippet saved successfully:", result);
       // Refresh the snippet cache for this language to include the new snippet
+
+      showProgressIndicator(`$(sync~spin) Refreshing Snippets`);
       await refreshSnippetCache(language);
+      hideProgressIndicator();
 
       // console.log("Snippet cache refreshed for language:", language);
 
@@ -272,9 +270,7 @@ let snippetStatusBarItem: vscode.StatusBarItem;
 export function activate(context: vscode.ExtensionContext) {
   // Periodically refresh snippet cache every 15 minutes
   setInterval(async () => {
-    showProgressIndicator(
-      "$(sync~spin) Refreshing Snippets for all languages..."
-    );
+    showProgressIndicator("$(sync~spin) Refreshing Snippets");
     for (const language of supportedLanguages) {
       await refreshSnippetCache(language);
     }
@@ -285,15 +281,17 @@ export function activate(context: vscode.ExtensionContext) {
   // Register authentication commands
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.login", async () => {
-      showProgressIndicator("$(sync~spin) Logging in...");
       try {
         await loginUser();
         updateStatusBarCommand(); // Update the status bar after login
 
+        showProgressIndicator(`$(sync~spin) Refreshing Snippets`);
         // Refresh snippet cache for all supported languages after login
         for (const language of supportedLanguages) {
           await refreshSnippetCache(language);
         }
+
+        hideProgressIndicator();
       } catch (error) {
         vscode.window.showErrorMessage("Login failed. Please try again.");
       } finally {
@@ -405,10 +403,14 @@ export function activate(context: vscode.ExtensionContext) {
   // Add the status bar item to the subscriptions
   context.subscriptions.push(snippetStatusBarItem);
 
+  showProgressIndicator(`$(sync~spin) Refreshing Snippets`);
+
   // Refresh snippet cache for all supported languages on activation
   supportedLanguages.forEach(async (language) => {
     await refreshSnippetCache(language);
   });
+
+  hideProgressIndicator();
 
   // Register completion providers for each supported language
   supportedLanguages.forEach((language) => {

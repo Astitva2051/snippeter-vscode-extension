@@ -43,17 +43,27 @@ export async function loginUser() {
       return;
     } // User cancelled
 
-    // Attempt login with timeout
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-      email,
-      password,
-    });
+    // Show progress indicator during login
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Logging in...",
+        cancellable: false,
+      },
+      async () => {
+        // Attempt login
+        const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+          email,
+          password,
+        });
 
-    // Securely store authentication token
-    await storeToken(response.data.token);
+        // Securely store authentication token
+        await storeToken(response.data.token);
 
-    // Hide progress and show success
-    vscode.window.showInformationMessage("Login successful!");
+        // Show success message
+        vscode.window.showInformationMessage("Login successful!");
+      }
+    );
   } catch (error) {
     // Comprehensive error handling
     if (axios.isAxiosError(error)) {
