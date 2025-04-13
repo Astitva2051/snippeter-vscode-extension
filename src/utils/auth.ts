@@ -19,12 +19,6 @@ function validateEmail(email: string): boolean {
  * Provides a secure, user-friendly login experience
  */
 export async function loginUser() {
-  // Create a progress indicator
-  const loginProgress = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100
-  );
-  loginProgress.text = "$(sync~spin) Logging in...";
   try {
     // Prompt for email with validation
     const email = await vscode.window.showInputBox({
@@ -49,23 +43,18 @@ export async function loginUser() {
       return;
     } // User cancelled
 
-    loginProgress.show();
-
     // Attempt login with timeout
-    const response = await axios.post(
-      `${API_BASE_URL}/auth/login`,
-      { email, password },
-      { timeout: 10000 }
-    );
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      email,
+      password,
+    });
 
     // Securely store authentication token
     await storeToken(response.data.token);
 
     // Hide progress and show success
-    loginProgress.hide();
     vscode.window.showInformationMessage("Login successful!");
   } catch (error) {
-    loginProgress.hide();
     // Comprehensive error handling
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401) {
