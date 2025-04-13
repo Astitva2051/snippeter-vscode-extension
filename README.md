@@ -1,6 +1,6 @@
 # Snippet-er: Manage and Suggest Code Snippets
 
-Snippet-er is a Visual Studio Code extension designed to help developers manage, create, and suggest code snippets seamlessly across their projects. With features like authentication, snippet creation, and intelligent suggestions, Snippet-er enhances productivity and code reuse.
+Snippet-er is a Visual Studio Code extension designed to help developers manage, create, and suggest code snippets seamlessly across their projects. With features like authentication, snippet creation, intelligent suggestions,and GenAI to create optimized snippets, Snippet-er enhances productivity and code reuse.
 
 ---
 
@@ -15,6 +15,7 @@ Snippet-er is a Visual Studio Code extension designed to help developers manage,
 - **Periodic Refresh**: Automatically refresh snippets at regular intervals to ensure you have the latest updates.
 - **Manual Refresh**: Refresh snippets manually using a command or the refresh button in the status bar.
 - **Status Bar Integration**: Use the Snippet-er status bar icon to quickly access actions like creating snippets, refreshing snippets, logging in, or logging out.
+- **Frontend Integration**: Browse and manage snippets through the Snippet-er web interface.
 
 ---
 
@@ -83,6 +84,17 @@ The Snippet-er status bar icon provides quick access to common actions:
 - **Logged Out**: When logged out, clicking the icon allows you to:
   - Log in.
   - Register for a new account.
+
+### 7. **Frontend Integration**
+
+- You can also browse and manage snippets through the Snippet-er web interface:
+  - **Login Page**: [Snippet-er Login](https://snippet-er.netlify.app/login)
+  - **Registration Page**: [Snippet-er Register](https://snippet-er.netlify.app/register)
+- From the web interface, you can:
+  - View snippets created by other users.
+  - Fork snippets from other users to use them as your own in the VS Code extension.
+  - Manage your existing snippets.
+  - Make use of GenAI to Optimize snippets.
 
 ---
 
