@@ -15001,11 +15001,6 @@ function validateEmail(email) {
   return emailRegex.test(email);
 }
 async function loginUser() {
-  const loginProgress = vscode2.window.createStatusBarItem(
-    vscode2.StatusBarAlignment.Right,
-    100
-  );
-  loginProgress.text = "$(sync~spin) Logging in...";
   try {
     const email = await vscode2.window.showInputBox({
       prompt: "Enter your email",
@@ -15023,17 +15018,22 @@ async function loginUser() {
     if (!password) {
       return;
     }
-    loginProgress.show();
-    const response = await axios_default.post(
-      `${API_BASE_URL}/auth/login`,
-      { email, password },
-      { timeout: 1e4 }
+    await vscode2.window.withProgress(
+      {
+        location: vscode2.ProgressLocation.Notification,
+        title: "Logging in...",
+        cancellable: false
+      },
+      async () => {
+        const response = await axios_default.post(`${API_BASE_URL}/auth/login`, {
+          email,
+          password
+        });
+        await storeToken(response.data.token);
+        vscode2.window.showInformationMessage("Login successful!");
+      }
     );
-    await storeToken(response.data.token);
-    loginProgress.hide();
-    vscode2.window.showInformationMessage("Login successful!");
   } catch (error) {
-    loginProgress.hide();
     if (axios_default.isAxiosError(error)) {
       if (error.response?.status === 401) {
         vscode2.window.showErrorMessage(
@@ -15089,7 +15089,6 @@ async function fetchSnippets(language) {
     const languageSnippets = response.data.snippets.filter(
       (snippet) => snippet.language === language
     );
-    console.log(`Fetched ${languageSnippets.length} snippets for ${language}`);
     return languageSnippets;
   } catch (error) {
     if (axios_default.isAxiosError(error)) {
@@ -15262,13 +15261,26 @@ var SupportedLanguage = /* @__PURE__ */ ((SupportedLanguage2) => {
 })(SupportedLanguage || {});
 var supportedLanguages = Object.values(SupportedLanguage);
 var snippetCache = {};
+var commonProgressIndicator;
+function showProgressIndicator(message) {
+  if (!commonProgressIndicator) {
+    commonProgressIndicator = vscode5.window.createStatusBarItem(
+      vscode5.StatusBarAlignment.Right,
+      100
+    );
+  }
+  commonProgressIndicator.text = message;
+  commonProgressIndicator.show();
+}
+function hideProgressIndicator() {
+  if (commonProgressIndicator) {
+    commonProgressIndicator.hide();
+  }
+}
 async function refreshSnippetCache(language) {
   try {
     const freshSnippets = await fetchSnippets(language);
     snippetCache[language] = freshSnippets;
-    console.log(
-      `Refreshed snippet cache for ${language}: ${freshSnippets.length} snippets`
-    );
   } catch (error) {
     console.error(`Failed to refresh snippet cache: ${error}`);
   }
@@ -15374,9 +15386,9 @@ async function saveSnippet() {
       tags
     });
     if (result) {
-      console.log("Snippet saved successfully:", result);
+      showProgressIndicator(`$(sync~spin) Refreshing Snippets`);
       await refreshSnippetCache(language);
-      console.log("Snippet cache refreshed for language:", language);
+      hideProgressIndicator();
       vscode5.window.showInformationMessage(
         `Snippet '${title}' saved successfully!`
       );
@@ -15389,7 +15401,7 @@ async function updateStatusBarCommand() {
   const token = await getStoredToken();
   if (token) {
     snippetStatusBarItem.command = "extension.handleLoggedInClick";
-    snippetStatusBarItem.tooltip = "Choose an action: Create Snippet or Logout";
+    snippetStatusBarItem.tooltip = "Choose an action: Create, Refresh or Logout";
   } else {
     snippetStatusBarItem.command = "extension.handleLoggedOutClick";
     snippetStatusBarItem.tooltip = "Log in or register to manage your snippets";
@@ -15398,31 +15410,38 @@ async function updateStatusBarCommand() {
 }
 var snippetStatusBarItem;
 function activate(context) {
-  setInterval(() => {
-    const refreshProgress = vscode5.window.createStatusBarItem(
-      vscode5.StatusBarAlignment.Right,
-      100
-    );
-    refreshProgress.text = "$(sync~spin) Refreshing Snippets...";
-    refreshProgress.show();
-    supportedLanguages.forEach(async (language) => {
+  setInterval(async () => {
+    showProgressIndicator("$(sync~spin) Refreshing Snippets");
+    for (const language of supportedLanguages) {
       await refreshSnippetCache(language);
-    });
-    refreshProgress.hide();
-    console.log("Snippet cache refreshed for all languages");
+    }
+    hideProgressIndicator();
   }, 15 * 60 * 1e3);
   context.subscriptions.push(
     vscode5.commands.registerCommand("extension.login", async () => {
-      await loginUser();
-      updateStatusBarCommand();
-      supportedLanguages.forEach(async (language) => {
-        await refreshSnippetCache(language);
-      });
+      try {
+        await loginUser();
+        updateStatusBarCommand();
+        showProgressIndicator(`$(sync~spin) Refreshing Snippets`);
+        for (const language of supportedLanguages) {
+          await refreshSnippetCache(language);
+        }
+        hideProgressIndicator();
+      } catch (error) {
+        vscode5.window.showErrorMessage("Login failed. Please try again.");
+      } finally {
+        hideProgressIndicator();
+      }
     }),
     vscode5.commands.registerCommand("extension.logout", async () => {
-      await logoutUser();
-      updateStatusBarCommand();
-      Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+      showProgressIndicator("$(sync~spin) Logging out...");
+      try {
+        await logoutUser();
+        updateStatusBarCommand();
+        Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+      } finally {
+        hideProgressIndicator();
+      }
     }),
     vscode5.commands.registerCommand("extension.saveSnippet", async () => {
       await saveSnippet();
@@ -15430,10 +15449,12 @@ function activate(context) {
   );
   context.subscriptions.push(
     vscode5.commands.registerCommand("extension.refreshCache", async () => {
-      supportedLanguages.forEach(async (language) => {
+      showProgressIndicator("$(sync~spin) Refreshing Snippets...");
+      for (const language of supportedLanguages) {
         await refreshSnippetCache(language);
-      });
+      }
       vscode5.window.showInformationMessage("Snippet cache refreshed!");
+      hideProgressIndicator();
     })
   );
   snippetStatusBarItem = vscode5.window.createStatusBarItem(
@@ -15492,9 +15513,11 @@ function activate(context) {
   );
   updateStatusBarCommand();
   context.subscriptions.push(snippetStatusBarItem);
+  showProgressIndicator(`$(sync~spin) Refreshing Snippets`);
   supportedLanguages.forEach(async (language) => {
     await refreshSnippetCache(language);
   });
+  hideProgressIndicator();
   supportedLanguages.forEach((language) => {
     context.subscriptions.push(
       vscode5.languages.registerCompletionItemProvider(
@@ -15556,6 +15579,7 @@ ${snippet.code}
 }
 function deactivate() {
   Object.keys(snippetCache).forEach((key) => delete snippetCache[key]);
+  hideProgressIndicator();
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

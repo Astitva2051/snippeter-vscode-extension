@@ -64,7 +64,7 @@ export async function fetchSnippets(language: string): Promise<Snippet[]> {
       (snippet) => snippet.language === language
     );
 
-    console.log(`Fetched ${languageSnippets.length} snippets for ${language}`);
+    // console.log(`Fetched ${languageSnippets.length} snippets for ${language}`);
 
     return languageSnippets;
   } catch (error) {
