@@ -47,11 +47,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Commit uncommitted changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Commit uncommitted changes just before bumping the version" || echo "No changes to commit"
+
       - name: Bump version
         run: |
           npm version patch
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git push origin HEAD
 
       - name: Package extension
