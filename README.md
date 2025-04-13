@@ -1,6 +1,6 @@
 # Snippet-er: Manage and Suggest Code Snippets
 
-Snippet-er is a Visual Studio Code extension designed to help developers manage, create, and suggest code snippets seamlessly across their projects. With features like authentication, snippet creation, intelligent suggestions,and GenAI to create optimized snippets, Snippet-er enhances productivity and code reuse.
+Snippet-er is a Visual Studio Code extension designed to help developers manage, create, and suggest code snippets seamlessly across their projects. With features like authentication, snippet creation, intelligent suggestions,and GenAI to create optimized snippets, Snippet-er enhances productivity and code reuse with power of AI.
 
 ---
 
