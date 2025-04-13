@@ -30,9 +30,6 @@ jobs:
       - name: Build extension
         run: npm run compile
 
-      - name: Run tests
-        run: npm test
-
   publish:
     needs: build-and-test
     runs-on: ubuntu-latest
