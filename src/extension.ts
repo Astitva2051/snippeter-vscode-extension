@@ -268,7 +268,7 @@ let snippetStatusBarItem: vscode.StatusBarItem;
  * @param context Extension context for registering commands
  */
 export function activate(context: vscode.ExtensionContext) {
-  // Periodically refresh snippet cache every 15 minutes
+  // Periodically refresh snippet cache every 30 minutes
   setInterval(async () => {
     showProgressIndicator("$(sync~spin) Refreshing Snippets");
     for (const language of supportedLanguages) {
@@ -276,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
     // console.log("Snippet cache refreshed for all languages");
     hideProgressIndicator();
-  }, 15 * 60 * 1000); // Refresh every 15 minutes
+  }, 30 * 60 * 1000); // Refresh every 30 minutes
 
   // Register authentication commands
   context.subscriptions.push(
