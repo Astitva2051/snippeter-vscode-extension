@@ -49,7 +49,7 @@ export async function fetchSnippets(language: string): Promise<Snippet[]> {
 
     // Configure authenticated request with cache prevention
     const response = await axios.get<{ snippets: Snippet[] }>(
-      `${API_BASE_URL}/snippets/userSnippets`,
+      `${API_BASE_URL}/snippets/ext-snippets`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
